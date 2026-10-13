@@ -128,9 +128,24 @@ timer_print_stats (void) {
 
 /* Timer interrupt handler. */
 static void
-timer_interrupt (struct intr_frame *args UNUSED) {
+timer_interrupt(struct intr_frame *args UNUSED)
+{
 	ticks++;
-	thread_tick ();
+	struct list_elem *wakeup_call = list_begin(&sleep_list);
+	while (wakeup_call != list_end(&sleep_list))
+	{
+		struct thread *sleeping_thread = list_entry(wakeup_call, struct thread, elem);
+		if ((sleeping_thread->wakeup_tick) <= ticks)
+		{
+			wakeup_call = list_remove(wakeup_call);
+			thread_unblock(sleeping_thread);
+		}
+		else
+		{
+			wakeup_call = list_next(wakeup_call);
+		}
+	}
+	thread_tick();
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer
