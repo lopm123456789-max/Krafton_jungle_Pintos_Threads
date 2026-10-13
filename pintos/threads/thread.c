@@ -62,6 +62,8 @@ static void init_thread (struct thread *, const char *name, int priority);
 static void do_schedule(int status);
 static void schedule (void);
 static tid_t allocate_tid (void);
+static bool cmp_priority (const struct list_elem *target, const struct list_elem *e, void *aux UNUSED);
+static void thread_yield_if_not_highest(void); 
 
 /* Returns true if T appears to point to a valid thread. */
 #define is_thread(t) ((t) != NULL && (t)->magic == THREAD_MAGIC)
@@ -206,10 +208,10 @@ thread_create (const char *name, int priority,
 
 	/* Add to run queue. */
 	thread_unblock (t);
+	thread_yield_if_not_highest(); 
 
 	return tid;
 }
-
 /* Puts the current thread to sleep.  It will not be scheduled
    again until awoken by thread_unblock().
 
@@ -240,7 +242,9 @@ thread_unblock (struct thread *t) {
 
 	old_level = intr_disable ();
 	ASSERT (t->status == THREAD_BLOCKED);
-	list_push_back (&ready_list, &t->elem);
+	//list_push_back (&ready_list, &t->elem);
+	list_insert_ordered(&ready_list, &t->elem, cmp_priority, NULL);
+	
 	t->status = THREAD_READY;
 	intr_set_level (old_level);
 }
@@ -303,7 +307,8 @@ thread_yield (void) {
 
 	old_level = intr_disable ();
 	if (curr != idle_thread)
-		list_push_back (&ready_list, &curr->elem);
+		//list_push_back (&ready_list, &curr->elem);
+		list_insert_ordered(&ready_list, &curr->elem, cmp_priority, NULL);
 	do_schedule (THREAD_READY);
 	intr_set_level (old_level);
 }
@@ -311,7 +316,11 @@ thread_yield (void) {
 /* Sets the current thread's priority to NEW_PRIORITY. */
 void
 thread_set_priority (int new_priority) {
+	int old_priority = thread_current ()->priority;
 	thread_current ()->priority = new_priority;
+	if(new_priority < old_priority){
+		thread_yield_if_not_highest(); 
+	}
 }
 
 /* Returns the current thread's priority. */
@@ -428,6 +437,7 @@ next_thread_to_run (void) {
 void
 do_iret (struct intr_frame *tf) {
 	__asm __volatile(
+
 			"movq %0, %%rsp\n"
 			"movq 0(%%rsp),%%r15\n"
 			"movq 8(%%rsp),%%r14\n"
@@ -587,4 +597,26 @@ allocate_tid (void) {
 	lock_release (&tid_lock);
 
 	return tid;
+}
+
+bool cmp_priority (const struct list_elem *target, const struct list_elem *e, void *aux UNUSED){
+	//target의 우선순위 > e의 우선순위 -> true 반환
+	//target == e 일 때는 먼저 들어온 스레드가 앞에 와야하므로 같을때도 넘어가야함 
+	
+	struct thread *target_thread = list_entry(target, struct thread, elem);
+	struct thread *e_thread = list_entry(e, struct thread, elem);
+	if(target_thread->priority > e_thread->priority){
+		return true;
+	}
+	return false;
+}
+
+void thread_yield_if_not_highest(void){
+	if(list_empty(&ready_list)) return;
+	
+	struct thread *current = thread_current();
+	struct thread *next = list_entry(list_begin(&ready_list), struct thread, elem);
+	if(current->priority < next->priority){
+		thread_yield();
+	}
 }
