@@ -28,7 +28,9 @@ static intr_handler_func timer_interrupt;
 static bool too_many_loops (unsigned loops);
 static void busy_wait (int64_t loops);
 static void real_time_sleep (int64_t num, int32_t denom);
-static struct list sleep_list;/* blocked list sleep용 */
+
+static struct list sleep_list;
+
 /* Sets up the 8254 Programmable Interval Timer (PIT) to
    interrupt PIT_FREQ times per second, and registers the
    corresponding interrupt. */
@@ -44,6 +46,8 @@ timer_init (void) {
 	outb (0x40, count >> 8);
 	list_init (&sleep_list);
 	intr_register_ext (0x20, timer_interrupt, "8254 Timer");
+
+	list_init (&sleep_list); //초기화 
 }
 
 /* Calibrates loops_per_tick, used to implement brief delays. */
@@ -91,15 +95,17 @@ timer_elapsed (int64_t then) {
 /* Suspends execution for approximately TICKS timer ticks. */
 void
 timer_sleep (int64_t ticks) {
-	struct thread *current_thread = thread_current();
-	if(ticks <= 0)
-	return;
-	ASSERT (intr_get_level () == INTR_ON);
-	enum intr_level old_level = intr_disable ();
-	current_thread -> wakeup_tick = timer_ticks() + ticks;
-	list_push_back (&sleep_list, &current_thread->elem);
-	thread_block ();/* yield(ready state)에서 blocked(blocked state)로 변경  */
-	intr_set_level(old_level);
+	ASSERT (intr_get_level () == INTR_ON);   // ① 호출할 때는 인터럽트가 켜져 있어야 함
+
+	if(ticks <= 0) return;
+
+	struct thread *t = thread_current(); //현재 CPU에서 실행 중인 스레드 찾기
+	t->awake_time = timer_ticks () + ticks;
+
+	enum intr_level old_level = intr_disable ();   // ② 끄기 (이때 상태를 old_level에 저장)
+	list_push_back(&sleep_list, &t->elem);		   // ③ 인터럽트가 꺼진 안전한 구간
+	thread_block(); //여기서 다음 스레드로 넘어감 (깨어나면 여기서 이어서 실행)
+	intr_set_level (old_level);                    // ④ 저장해 둔 인터럽트 플래그 상태로 복구
 }
 
 /* Suspends execution for approximately MS milliseconds. */
@@ -125,27 +131,24 @@ void
 timer_print_stats (void) {
 	printf ("Timer: %"PRId64" ticks\n", timer_ticks ());
 }
-
+
 /* Timer interrupt handler. */
 static void
 timer_interrupt(struct intr_frame *args UNUSED)
 {
 	ticks++;
-	struct list_elem *wakeup_call = list_begin(&sleep_list);
-	while (wakeup_call != list_end(&sleep_list))
-	{
-		struct thread *sleeping_thread = list_entry(wakeup_call, struct thread, elem);
-		if ((sleeping_thread->wakeup_tick) <= ticks)
-		{
-			wakeup_call = list_remove(wakeup_call);
-			thread_unblock(sleeping_thread);
-		}
-		else
-		{
-			wakeup_call = list_next(wakeup_call);
+	thread_tick ();
+	//sleep_list에서 깨울 스레드 찾기 -> 리스트에서 빼고, thread_unblock()
+	struct list_elem *e = list_begin(&sleep_list);
+	while(e != list_end(&sleep_list)){
+		struct thread *t = list_entry (e, struct thread, elem); //이 e는 struct thread 안의 elem 멤버이다. 그 구조체의 시작 주소를 계산해줘 
+		if(t->awake_time <= ticks){
+			e = list_remove(e);
+			thread_unblock(t);
+		} else{
+			e = list_next(e);
 		}
 	}
-	thread_tick();
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer
