@@ -1,6 +1,6 @@
-/* Child process for mmap-inherit test.
-   Tries to write to a mapping present in the parent.
-   The process must be terminated with -1 exit code. */
+/* mmap-inherit 테스트용 자식 프로세스.
+   부모에 있는 매핑에 쓰려 함.
+   프로세스가 종료 코드 -1로 끝나야 함. */
 
 #include <string.h>
 #include "tests/vm/sample.inc"

@@ -1,4 +1,4 @@
-/* Tests argument passing to child processes. */
+/* 자식 프로세스에 인자가 제대로 전달되는지 테스트함. */
 
 #include <syscall.h>
 #include "tests/lib.h"

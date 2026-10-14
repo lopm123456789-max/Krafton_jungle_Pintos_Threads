@@ -1,5 +1,4 @@
-/* Try a 0-byte read, which should return 0 without reading
-   anything. */
+/* 0바이트 읽기를 해 봄. 아무것도 읽지 않고 0을 돌려줘야 함. */
 
 #include <syscall.h>
 #include "tests/lib.h"

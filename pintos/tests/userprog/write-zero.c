@@ -1,5 +1,4 @@
-/* Try a 0-byte write, which should return 0 without writing
-   anything. */
+/* 0바이트 쓰기를 해 봄. 아무것도 쓰지 않고 0을 돌려줘야 함. */
 
 #include <syscall.h>
 #include "tests/lib.h"

@@ -1,6 +1,6 @@
-/* Child process run by wait-killed test.
-   Tries to execute pintos, which should then terminate the process with a
-   -1 exit code because `pintos` is not present in Pintos. */
+/* wait-killed 테스트가 실행하는 자식 프로세스.
+   pintos를 실행하려 하는데, Pintos 안에는 `pintos`가 없으므로
+   프로세스가 종료 코드 -1로 끝나야 함. */
 
 #include "tests/lib.h"
 #include "tests/main.h"

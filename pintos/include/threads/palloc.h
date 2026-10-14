@@ -4,14 +4,14 @@
 #include <stdint.h>
 #include <stddef.h>
 
-/* How to allocate pages. */
+/* 페이지를 어떻게 할당할지 정하는 옵션. */
 enum palloc_flags {
-	PAL_ASSERT = 001,           /* Panic on failure. */
-	PAL_ZERO = 002,             /* Zero page contents. */
-	PAL_USER = 004              /* User page. */
+	PAL_ASSERT = 001,           /* 실패하면 panic. */
+	PAL_ZERO = 002,             /* 페이지 내용을 0으로 채움. */
+	PAL_USER = 004              /* 사용자 페이지. */
 };
 
-/* Maximum number of pages to put in user pool. */
+/* 사용자 pool에 넣을 최대 페이지 수. */
 extern size_t user_page_limit;
 
 uint64_t palloc_init (void);

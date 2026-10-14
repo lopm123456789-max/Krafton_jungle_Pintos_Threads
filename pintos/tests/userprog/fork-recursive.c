@@ -1,4 +1,4 @@
-/* Forks and waits recursively. */
+/* 재귀적으로 fork 하고 기다림. */
 
 #include <syscall.h>
 #include "tests/lib.h"

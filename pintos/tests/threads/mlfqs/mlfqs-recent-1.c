@@ -1,7 +1,7 @@
-/* Checks that recent_cpu is calculated properly for the case of
-   a single ready process.
+/* 실행 가능한 프로세스가 하나뿐일 때 recent_cpu가 제대로
+   계산되는지 확인함.
 
-   The expected output is this (some margin of error is allowed):
+   예상 출력은 다음과 같음 (어느 정도 오차는 허용됨):
 
    After 2 seconds, recent_cpu is 6.40, load_avg is 0.03.
    After 4 seconds, recent_cpu is 12.60, load_avg is 0.07.
@@ -93,7 +93,7 @@
    After 176 seconds, recent_cpu is 189.27, load_avg is 0.95.
    After 178 seconds, recent_cpu is 189.63, load_avg is 0.95.
    After 180 seconds, recent_cpu is 189.97, load_avg is 0.95.
-*/   
+   */   
 
 #include <stdio.h>
 #include "tests/threads/tests.h"
@@ -103,8 +103,8 @@
 #include "threads/thread.h"
 #include "devices/timer.h"
 
-/* Sensitive to assumption that recent_cpu updates happen exactly
-   when timer_ticks() % TIMER_FREQ == 0. */
+/* recent_cpu 갱신이 정확히 timer_ticks() % TIMER_FREQ == 0일 때
+   일어난다는 가정에 민감함. */
 
 void
 test_mlfqs_recent_1 (void) 

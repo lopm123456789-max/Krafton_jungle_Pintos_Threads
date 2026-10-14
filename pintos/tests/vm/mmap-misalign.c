@@ -1,4 +1,4 @@
-/* Verifies that misaligned memory mappings are disallowed. */
+/* 정렬되지 않은 메모리 매핑이 막혀 있는지 확인함. */
 
 #include <syscall.h>
 #include "tests/lib.h"

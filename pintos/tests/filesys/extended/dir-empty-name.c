@@ -1,5 +1,4 @@
-/* Tries to create a directory named as the empty string,
-   which must return failure. */
+/* 이름이 빈 문자열인 디렉터리를 만들어 봄. 실패해야 함. */
 
 #include <syscall.h>
 #include "tests/lib.h"

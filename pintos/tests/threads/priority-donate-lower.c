@@ -1,8 +1,7 @@
-/* The main thread acquires a lock.  Then it creates a
-   higher-priority thread that blocks acquiring the lock, causing
-   it to donate their priorities to the main thread.  The main
-   thread attempts to lower its priority, which should not take
-   effect until the donation is released. */
+/* main 스레드가 락을 획득함. 그다음 그 락을 얻으려다 막히는
+   더 높은 우선순위 스레드를 만들어서, 그 스레드가 main 스레드에게
+   우선순위를 기부하게 함. main 스레드가 자기 우선순위를 낮추려
+   해도, 기부가 풀리기 전까지는 적용되면 안 됨. */
 
 #include <stdio.h>
 #include "tests/threads/tests.h"
@@ -17,10 +16,10 @@ test_priority_donate_lower (void)
 {
   struct lock lock;
 
-  /* This test does not work with the MLFQS. */
+  /* 이 테스트는 MLFQS에서는 동작하지 않음. */
   ASSERT (!thread_mlfqs);
 
-  /* Make sure our priority is the default. */
+  /* 우리 우선순위가 기본값인지 확인. */
   ASSERT (thread_get_priority () == PRI_DEFAULT);
 
   lock_init (&lock);

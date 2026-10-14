@@ -1,18 +1,17 @@
-/* The main thread acquires locks A and B, then it creates three
-   higher-priority threads.  The first two of these threads block
-   acquiring one of the locks and thus donate their priority to
-   the main thread.  The main thread releases the locks in turn
-   and relinquishes its donated priorities, allowing the third thread
-   to run.
+/* main 스레드가 락 A와 B를 획득한 뒤, 더 높은 우선순위
+   스레드 세 개를 만듦. 앞의 두 스레드는 각각 락 하나를 얻으려다
+   막혀서 main 스레드에게 우선순위를 기부함. main 스레드는 락을
+   차례로 풀면서 기부받은 우선순위를 내려놓고, 세 번째 스레드가
+   실행되게 함.
 
-   In this test, the main thread releases the locks in a different
-   order compared to priority-donate-multiple.c.
-   
-   Written by Godmar Back <gback@cs.vt.edu>. 
-   Based on a test originally submitted for Stanford's CS 140 in
-   winter 1999 by Matt Franklin <startled@leland.stanford.edu>,
-   Greg Hutchins <gmh@leland.stanford.edu>, Yu Ping Hu
-   <yph@cs.stanford.edu>.  Modified by arens. */
+   이 테스트에서는 priority-donate-multiple.c와 다른 순서로 main
+   스레드가 락을 풂.
+
+   Godmar Back <gback@cs.vt.edu> 작성.
+   원래 Stanford CS 140 1999년 겨울 학기에 Matt Franklin
+   <startled@leland.stanford.edu>, Greg Hutchins
+   <gmh@leland.stanford.edu>, Yu Ping Hu <yph@cs.stanford.edu>가
+   제출한 테스트를 바탕으로 함. arens가 수정함. */
 
 #include <stdio.h>
 #include "tests/threads/tests.h"
@@ -29,10 +28,10 @@ test_priority_donate_multiple2 (void)
 {
   struct lock a, b;
 
-  /* This test does not work with the MLFQS. */
+  /* 이 테스트는 MLFQS에서는 동작하지 않음. */
   ASSERT (!thread_mlfqs);
 
-  /* Make sure our priority is the default. */
+  /* 우리 우선순위가 기본값인지 확인. */
   ASSERT (thread_get_priority () == PRI_DEFAULT);
 
   lock_init (&a);

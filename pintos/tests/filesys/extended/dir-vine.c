@@ -1,11 +1,9 @@
-/* Create a very deep "vine" of directories: /dir0/dir1/dir2/...
-   and an ordinary file in each of them, until we fill up the
-   disk.
-   
-   Then delete most of them, for two reasons.  First, "tar"
-   limits file names to 100 characters (which could be extended
-   to 256 without much trouble).  Second, a full disk has no room
-   for the tar archive. */
+/* 아주 깊은 "덩굴" 모양 디렉터리 /dir0/dir1/dir2/...를 만들고,
+   디스크가 꽉 찰 때까지 각 디렉터리에 일반 파일을 하나씩 만듦.
+
+   그다음 대부분을 지움. 이유는 두 가지임. 첫째, "tar"는 파일
+   이름을 100자로 제한함 (어렵지 않게 256자로 늘릴 수는 있음).
+   둘째, 꽉 찬 디스크에는 tar 아카이브를 둘 자리가 없음. */
 
 #include <string.h>
 #include <stdio.h>
@@ -29,7 +27,7 @@ test_main (void)
       char contents[128];
       int fd;
 
-      /* Create file. */
+      /* 파일 생성. */
       snprintf (file_name, sizeof file_name, "file%d", i);
       if (!create (file_name, 0))
         break;
@@ -43,7 +41,7 @@ test_main (void)
         }
       close (fd);
       
-      /* Create directory. */
+      /* 디렉터리 생성. */
       snprintf (dir_name, sizeof dir_name, "dir%d", i);
       if (!mkdir (dir_name)) 
         {
@@ -51,7 +49,7 @@ test_main (void)
           break; 
         }
 
-      /* Check for file and directory. */
+      /* 파일과 디렉터리 확인. */
       CHECK ((fd = open (".")) > 1, "open \".\"");
       CHECK (readdir (fd, name[0]), "readdir \".\"");
       CHECK (readdir (fd, name[1]), "readdir \".\"");
@@ -63,7 +61,7 @@ test_main (void)
              file_name, dir_name, name[0], name[1]);
       close (fd);
 
-      /* Descend into directory. */
+      /* 디렉터리 안으로 들어감. */
       CHECK (chdir (dir_name), "chdir \"%s\"", dir_name);
     }
   CHECK (i > 200, "created files and directories only to level %d", i);

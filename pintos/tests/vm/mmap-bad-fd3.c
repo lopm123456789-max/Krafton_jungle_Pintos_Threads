@@ -1,7 +1,5 @@
-/* Tries to mmap with fd 1,
-   which is the file descriptor for console output. 
-	 mmap must fail silently or terminate the process with  
-   exit code -1. */
+/* 콘솔 출력용 파일 디스크립터인 fd 1로 mmap 하려 함.
+   mmap은 조용히 실패하거나 프로세스가 종료 코드 -1로 끝나야 함. */
 
 #include <syscall.h>
 #include "tests/lib.h"

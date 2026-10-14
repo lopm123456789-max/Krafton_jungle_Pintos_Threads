@@ -1,5 +1,5 @@
-/* Checks if any type of memory is properly swapped out and swapped in 
- * For this test, Pintos memory size is 128MB */ 
+/* 모든 종류의 메모리가 제대로 스왑 아웃, 스왑 인 되는지 확인함
+ * 이 테스트에서 Pintos 메모리 크기는 128MB임 */ 
 
 #include <string.h>
 #include <syscall.h>
@@ -33,12 +33,12 @@ test_main (void)
     CHECK ((handle = open ("large.txt")) > 1, "open \"large.txt\"");
     CHECK ((map = mmap (actual, sizeof(large), 0, handle, 0)) != MAP_FAILED, "mmap \"large.txt\"");
 
-    /* Read in file map'd page */
+    /* 파일 매핑 페이지 읽기 */
     if (memcmp (actual, large, strlen (large)))
         fail ("read of mmap'd file reported bad data");
 
 
-    /* Read in anon page */
+    /* 익명 페이지 읽기 */
     for (i = 0; i < PAGE_COUNT; i++) {
         if (big_chunks[i*PAGE_SIZE] != (char) i)
             fail ("data is inconsistent");
@@ -46,11 +46,11 @@ test_main (void)
             msg ("check consistency in page %zu", i);
     }
 
-    /* Check file map'd page again */
+    /* 파일 매핑 페이지 다시 확인 */
     if (memcmp (actual, large, strlen (large)))
         fail ("read of mmap'd file reported bad data");
 
-    /* Unmap and close opend file */
+    /* 매핑을 해제하고 연 파일을 닫음 */
     munmap (map);
     close (handle);
 }

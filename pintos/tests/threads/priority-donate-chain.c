@@ -1,28 +1,27 @@
-/* The main thread set its priority to PRI_MIN and creates 7 threads 
-   (thread 1..7) with priorities PRI_MIN + 3, 6, 9, 12, ...
-   The main thread initializes 8 locks: lock 0..7 and acquires lock 0.
+/* main 스레드는 자기 우선순위를 PRI_MIN으로 정하고, 우선순위가
+   PRI_MIN + 3, 6, 9, 12, ...인 스레드 7개(thread 1..7)를 만듦.
+   main 스레드는 락 8개(lock 0..7)를 초기화하고 lock 0을 획득함.
 
-   When thread[i] starts, it first acquires lock[i] (unless i == 7.)
-   Subsequently, thread[i] attempts to acquire lock[i-1], which is held by
-   thread[i-1], except for lock[0], which is held by the main thread.
-   Because the lock is held, thread[i] donates its priority to thread[i-1],
-   which donates to thread[i-2], and so on until the main thread
-   receives the donation.
+   thread[i]는 시작하면 먼저 lock[i]를 획득함 (i == 7은 제외).
+   그다음 thread[i]는 lock[i-1]을 획득하려 함. lock[i-1]은
+   thread[i-1]이 쥐고 있고, lock[0]만 main 스레드가 쥐고 있음.
+   락이 잡혀 있으므로 thread[i]는 thread[i-1]에게 우선순위를 기부하고,
+   thread[i-1]은 thread[i-2]에게 기부하는 식으로 이어져서 결국 main
+   스레드가 기부를 받음.
 
-   After threads[1..7] have been created and are blocked on locks[0..7],
-   the main thread releases lock[0], unblocking thread[1], and being
-   preempted by it.
-   Thread[1] then completes acquiring lock[0], then releases lock[0],
-   then releases lock[1], unblocking thread[2], etc.
-   Thread[7] finally acquires & releases lock[7] and exits, allowing 
-   thread[6], then thread[5] etc. to run and exit until finally the 
-   main thread exits.
+   threads[1..7]이 생성되어 locks[0..7]에서 막힌 뒤, main 스레드가
+   lock[0]을 풀면 thread[1]이 깨어나고 main은 thread[1]에게 선점당함.
+   thread[1]은 lock[0] 획득을 마친 뒤 lock[0]을 풀고, lock[1]을
+   풀어서 thread[2]를 깨움. 이런 식으로 이어짐.
+   마지막으로 thread[7]이 lock[7]을 획득했다 풀고 종료하면,
+   thread[6], thread[5] 순으로 실행되고 종료하며, 마지막에 main
+   스레드가 종료함.
 
-   In addition, interloper threads are created at priority levels
-   p = PRI_MIN + 2, 5, 8, 11, ... which should not be run until the 
-   corresponding thread with priority p + 1 has finished.
-  
-   Written by Godmar Back <gback@cs.vt.edu> */ 
+   추가로 우선순위 p = PRI_MIN + 2, 5, 8, 11, ...인 끼어들기
+   (interloper) 스레드들도 만듦. 이 스레드들은 우선순위 p + 1인
+   스레드가 끝나기 전까지는 실행되면 안 됨.
+
+   Godmar Back <gback@cs.vt.edu> 작성 */ 
 
 #include <stdio.h>
 #include "tests/threads/tests.h"
@@ -48,7 +47,7 @@ test_priority_donate_chain (void)
   struct lock locks[NESTING_DEPTH - 1];
   struct lock_pair lock_pairs[NESTING_DEPTH];
 
-  /* This test does not work with the MLFQS. */
+  /* 이 테스트는 MLFQS에서는 동작하지 않음. */
   ASSERT (!thread_mlfqs);
 
   thread_set_priority (PRI_MIN);

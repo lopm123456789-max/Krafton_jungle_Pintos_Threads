@@ -1,4 +1,4 @@
-/* Tests the halt system call. */
+/* halt 시스템 콜 테스트. */
 
 #include "tests/lib.h"
 #include "tests/main.h"

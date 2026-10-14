@@ -1,5 +1,5 @@
-/* Tries to create a file with the same name as an existing
-   directory, which must return failure. */
+/* 이미 있는 디렉터리와 같은 이름으로 파일을 만들어 봄.
+   실패해야 함. */
 
 #include <syscall.h>
 #include "tests/lib.h"

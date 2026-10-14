@@ -1,4 +1,4 @@
-/* Open a file. */
+/* 파일 열기. */
 
 #include <syscall.h>
 #include "tests/lib.h"
