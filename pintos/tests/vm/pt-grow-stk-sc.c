@@ -1,8 +1,7 @@
-/* This test checks that the stack is properly extended even if
-   the first access to a stack location occurs inside a system
-   call.
+/* 스택 위치에 처음 접근하는 곳이 시스템 콜 안이어도 스택이
+   제대로 늘어나는지 확인하는 테스트임.
 
-   From Godmar Back. */
+   Godmar Back 제공. */
 
 #include <string.h>
 #include <syscall.h>
@@ -17,13 +16,13 @@ test_main (void)
   int slen = strlen (sample);
   char buf2[65536];
 
-  /* Write file via write(). */
+  /* write()로 파일에 씀. */
   CHECK (create ("sample.txt", slen), "create \"sample.txt\"");
   CHECK ((handle = open ("sample.txt")) > 1, "open \"sample.txt\"");
   CHECK (write (handle, sample, slen) == slen, "write \"sample.txt\"");
   close (handle);
 
-  /* Read back via read(). */
+  /* read()로 다시 읽음. */
   CHECK ((handle = open ("sample.txt")) > 1, "2nd open \"sample.txt\"");
   CHECK (read (handle, buf2 + 32768, slen) == slen, "read \"sample.txt\"");
 

@@ -1,8 +1,8 @@
 #ifndef __LIB_STDARG_H
 #define __LIB_STDARG_H
 
-/* GCC has <stdarg.h> functionality as built-ins,
- * so all we need is to use it. */
+/* GCC가 <stdarg.h> 기능을 내장 함수로 제공하므로
+ * 그걸 그대로 쓰면 됨. */
 
 typedef __builtin_va_list va_list;
 

@@ -1,4 +1,4 @@
-/* Tries to open a nonexistent file. */
+/* 존재하지 않는 파일을 열어 봄. */
 
 #include <syscall.h>
 #include "tests/lib.h"

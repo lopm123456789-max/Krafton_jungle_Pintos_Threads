@@ -1,9 +1,8 @@
-/* Starts 60 threads that each sleep for 10 seconds, then spin in
-   a tight loop for 60 seconds, and sleep for another 60 seconds.
-   Every 2 seconds after the initial sleep, the main thread
-   prints the load average.
+/* 스레드 60개를 시작함. 각 스레드는 10초 동안 잠들고, 60초 동안
+   빡빡한 루프를 돌고, 다시 60초 동안 잠듦. 처음 잠든 뒤부터 2초마다
+   main 스레드가 load average를 출력함.
 
-   The expected output is this (some margin of error is allowed):
+   예상 출력은 다음과 같음 (어느 정도 오차는 허용됨):
 
    After 0 seconds, load average=1.00.
    After 2 seconds, load average=2.95.
@@ -95,7 +94,7 @@
    After 174 seconds, load average=5.52.
    After 176 seconds, load average=5.33.
    After 178 seconds, load average=5.16.
-*/
+   */
 
 #include <stdio.h>
 #include "tests/threads/tests.h"

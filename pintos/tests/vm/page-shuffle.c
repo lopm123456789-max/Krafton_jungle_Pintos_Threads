@@ -1,5 +1,4 @@
-/* Shuffles a 128 kB data buffer 10 times, printing the checksum
-   after each time. */
+/* 128kB 데이터 버퍼를 10번 섞으면서, 매번 체크섬을 출력함. */
 
 #include <stdbool.h>
 #include "tests/arc4.h"
@@ -16,12 +15,12 @@ test_main (void)
 {
   size_t i;
 
-  /* Initialize. */
+  /* 초기화. */
   for (i = 0; i < sizeof buf; i++)
     buf[i] = i * 257;
   msg ("init: cksum=%lu", cksum (buf, sizeof buf));
     
-  /* Shuffle repeatedly. */
+  /* 반복해서 섞음. */
   for (i = 0; i < 10; i++)
     {
       shuffle (buf, sizeof buf, 1);

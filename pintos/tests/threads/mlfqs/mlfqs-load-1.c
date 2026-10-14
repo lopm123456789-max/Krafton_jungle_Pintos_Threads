@@ -1,10 +1,10 @@
-/* Verifies that a single busy thread raises the load average to
-   0.5 in 38 to 45 seconds.  The expected time is 42 seconds, as
-   you can verify:
+/* 바쁘게 도는 스레드 하나가 38~45초 안에 load average를 0.5까지
+   올리는지 확인함. 예상 시간은 42초이며, 아래 명령으로 확인할 수
+   있음:
    perl -e '$i++,$a=(59*$a+1)/60while$a<=.5;print "$i\n"'
 
-   Then, verifies that 10 seconds of inactivity drop the load
-   average back below 0.5 again. */
+   그다음 10초 동안 아무것도 안 하면 load average가 다시 0.5 아래로
+   떨어지는지 확인함. */
 
 #include <stdio.h>
 #include "tests/threads/tests.h"

@@ -1,6 +1,5 @@
-/* Opens a file and then tries to close it twice.  The second
-   close must either fail silently or terminate with exit code
-   -1. */
+/* 파일을 열고 두 번 닫으려 함. 두 번째 close는 조용히
+   실패하거나 종료 코드 -1로 끝나야 함. */
 
 #include <syscall.h>
 #include "tests/lib.h"

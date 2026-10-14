@@ -1,6 +1,6 @@
 /* tar.c
 
-   Creates a tar archive. */
+   tar 아카이브를 만듦. */
 
 #include <syscall.h>
 #include <stdio.h>
@@ -105,7 +105,7 @@ archive_file (char file_name[], size_t file_name_size,
         }
       else
         {
-          /* Nothing to do: don't try to archive the archive file. */
+          /* 할 일 없음: 아카이브 파일 자신은 아카이브하지 않음. */
           success = true;
         }
   
@@ -192,16 +192,15 @@ write_header (const char *file_name,
 
   memset (header, 0, sizeof header);
 
-  /* Drop confusing and possibly dangerous prefixes from
-     FILE_NAME. */
+  /* FILE_NAME에서 헷갈리거나 위험할 수 있는 접두어를 떼어냄. */
   while (*file_name == '/'
          || !memcmp (file_name, "./", 2)
          || !memcmp (file_name, "../", 3))
     file_name = strchr (file_name, '/') + 1;
   if (*file_name == '\0') 
     {
-      /* Dropped *everything* from FILE_NAME.
-         Should only be possible for a directory. */
+      /* FILE_NAME에서 *전부*를 떼어냈음.
+         디렉터리일 때만 가능해야 함. */
       ASSERT (type_flag == '5');
       return true; 
     }
@@ -211,7 +210,7 @@ write_header (const char *file_name,
       return false;
     }
 
-  /* Fill in header except for final checksum. */
+  /* 마지막 체크섬을 뺀 헤더를 채움. */
   strlcpy (header, file_name, 100);                 /* name */
   snprintf (header + 100, 8, "%07o", mode);         /* mode */
   strlcpy (header + 108, "0000000", 8);             /* uid */
@@ -223,13 +222,13 @@ write_header (const char *file_name,
   strlcpy (header + 257, "ustar", 6);               /* magic */
   strlcpy (header + 263, "00", 3);                  /* version */
 
-  /* Compute and fill in final checksum. */
+  /* 마지막 체크섬을 계산해서 채움. */
   chksum = 0;
   for (i = 0; i < 512; i++)
     chksum += (uint8_t) header[i];
   snprintf (header + 148, 8, "%07o", chksum);
 
-  /* Write header. */
+  /* 헤더 쓰기. */
   return do_write (archive_fd, header, 512, write_error);
 }
 

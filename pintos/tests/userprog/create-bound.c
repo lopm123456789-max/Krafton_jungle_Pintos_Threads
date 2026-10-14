@@ -1,5 +1,5 @@
-/* Opens a file whose name spans the boundary between two pages.
-   This is valid, so it must succeed. */
+/* 이름이 두 페이지의 경계에 걸친 파일을 엶.
+   올바른 동작이므로 성공해야 함. */
 
 #include <syscall.h>
 #include "tests/userprog/boundary.h"

@@ -1,4 +1,4 @@
-/* Verifies that mapping over the stack segment is disallowed. */
+/* 스택 세그먼트 위에 매핑하는 것이 막혀 있는지 확인함. */
 
 #include <stdint.h>
 #include <round.h>

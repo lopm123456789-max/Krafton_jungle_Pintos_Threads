@@ -1,5 +1,4 @@
-/* Verifies that trying to create a file under a name that
-   already exists will fail. */
+/* 이미 있는 이름으로 파일을 만들면 실패하는지 확인함. */
 
 #include <syscall.h>
 #include "tests/lib.h"

@@ -1,6 +1,6 @@
-/* Wait for a subprocess to finish, twice.
-   The first call must wait in the usual way and return the exit code.
-   The second wait call must return -1 immediately. */
+/* 자식 프로세스가 끝날 때까지 두 번 기다림.
+   첫 번째 호출은 평소처럼 기다렸다가 종료 코드를 돌려줘야 함.
+   두 번째 wait 호출은 즉시 -1을 돌려줘야 함. */
 
 #include <syscall.h>
 #include "tests/lib.h"

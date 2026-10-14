@@ -1,6 +1,5 @@
-/* Tries to write to an invalid fd,
-   which must either fail silently or terminate the process with
-   exit code -1. */
+/* 잘못된 fd에 쓰려 함.
+   조용히 실패하거나 프로세스가 종료 코드 -1로 끝나야 함. */
 
 #include <limits.h>
 #include <syscall.h>

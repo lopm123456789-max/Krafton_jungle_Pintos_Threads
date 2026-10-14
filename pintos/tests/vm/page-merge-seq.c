@@ -1,25 +1,23 @@
-/* Generates about 1 MB of random data that is then divided into
-   16 chunks.  A separate subprocess sorts each chunk in
-   sequence.  Then we merge the chunks and verify that the result
-   is what it should be. */
+/* 약 1MB의 무작위 데이터를 만들어 16조각으로 나눔. 별도의 자식
+   프로세스가 각 조각을 차례로 정렬함. 그다음 조각들을 합치고
+   결과가 맞는지 확인함. */
 
 #include <syscall.h>
 #include "tests/arc4.h"
 #include "tests/lib.h"
 #include "tests/main.h"
 
-/* This is the max file size for an older version of the Pintos
-   file system that had 126 direct blocks each pointing to a
-   single disk sector.  We could raise it now. */
+/* 예전 Pintos 파일 시스템의 최대 파일 크기임. 그때는 직접 블록
+   126개가 각각 디스크 섹터 하나를 가리켰음. 지금은 더 늘릴 수 있음. */
 #define CHUNK_SIZE (126 * 512)
-#define CHUNK_CNT 16                            /* Number of chunks. */
-#define DATA_SIZE (CHUNK_CNT * CHUNK_SIZE)      /* Buffer size. */
+#define CHUNK_CNT 16                            /* 조각 수. */
+#define DATA_SIZE (CHUNK_CNT * CHUNK_SIZE)      /* 버퍼 크기. */
 
 unsigned char buf1[DATA_SIZE], buf2[DATA_SIZE];
 size_t histogram[256];
 
-/* Initialize buf1 with random data,
-   then count the number of instances of each value within it. */
+/* buf1을 무작위 데이터로 초기화하고, 그 안에서 값마다 몇 번
+   나오는지 셈. */
 static void
 init (void)
 {
@@ -34,7 +32,7 @@ init (void)
     histogram[buf1[i]]++;
 }
 
-/* Sort each chunk of buf1 using a subprocess. */
+/* 자식 프로세스로 buf1의 각 조각을 정렬함. */
 static void
 sort_chunks (void)
 {
@@ -48,13 +46,13 @@ sort_chunks (void)
 
       msg ("sort chunk %zu", i);
 
-      /* Write this chunk to a file. */
+      /* 이 조각을 파일에 씀. */
       quiet = true;
       CHECK ((handle = open ("buffer")) > 1, "open \"buffer\"");
       write (handle, buf1 + CHUNK_SIZE * i, CHUNK_SIZE);
       close (handle);
 
-      /* Sort with subprocess. */
+      /* 자식 프로세스로 정렬. */
       child = fork("child-sort");
 			/* if (child == 0) { */
 			/* 	CHECK (exec ("child-sort buffer") != -1, "exec \"child-sort buffer\""); */
@@ -73,7 +71,7 @@ sort_chunks (void)
 				msg ("child[%zu] wait success", i);
 				quiet = true;
 
-				/* Read chunk back from file. */
+				/* 파일에서 조각을 다시 읽음. */
 				CHECK ((handle = open ("buffer")) > 1, "open \"buffer\"");
 				read (handle, buf1 + CHUNK_SIZE * i, CHUNK_SIZE);
 				close (handle);
@@ -83,7 +81,7 @@ sort_chunks (void)
     }
 }
 
-/* Merge the sorted chunks in buf1 into a fully sorted buf2. */
+/* buf1의 정렬된 조각들을 합쳐서 완전히 정렬된 buf2를 만듦. */
 static void
 merge (void)
 {
@@ -94,26 +92,26 @@ merge (void)
 
   msg ("merge");
 
-  /* Initialize merge pointers. */
+  /* 병합 포인터 초기화. */
   mp_left = CHUNK_CNT;
   for (i = 0; i < CHUNK_CNT; i++)
     mp[i] = buf1 + CHUNK_SIZE * i;
 
-  /* Merge. */
+  /* 병합. */
   op = buf2;
   while (mp_left > 0)
     {
-      /* Find smallest value. */
+      /* 가장 작은 값 찾기. */
       size_t min = 0;
       for (i = 1; i < mp_left; i++)
         if (*mp[i] < *mp[min])
           min = i;
 
-      /* Append value to buf2. */
+      /* buf2에 값 추가. */
       *op++ = *mp[min];
 
-      /* Advance merge pointer.
-         Delete this chunk from the set if it's emptied. */
+      /* 병합 포인터를 앞으로 옮김.
+         조각이 비면 집합에서 지움. */
       if ((++mp[min] - buf1) % CHUNK_SIZE == 0)
         mp[min] = mp[--mp_left];
     }

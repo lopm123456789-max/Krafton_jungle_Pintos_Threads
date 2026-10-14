@@ -1,6 +1,5 @@
-/* Passes a bad pointer to the create system call,
-   which must cause the process to be terminated with exit code
-   -1. */
+/* create 시스템 콜에 잘못된 포인터를 넘김.
+   프로세스가 종료 코드 -1로 끝나야 함. */
 
 #include "tests/lib.h"
 #include "tests/main.h"

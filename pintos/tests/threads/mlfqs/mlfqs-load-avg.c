@@ -1,20 +1,15 @@
-/* Starts 60 threads numbered 0 through 59.  Thread #i sleeps for
-   (10+i) seconds, then spins in a loop for 60 seconds, then
-   sleeps until a total of 120 seconds have passed.  Every 2
-   seconds, starting 10 seconds in, the main thread prints the
-   load average.
+/* 0번부터 59번까지 스레드 60개를 시작함. #i 스레드는 (10+i)초
+   동안 잠들고, 60초 동안 루프를 돈 뒤, 총 120초가 될 때까지 잠듦.
+   10초 시점부터 2초마다 main 스레드가 load average를 출력함.
 
-   The expected output is listed below.  Some margin of error is
-   allowed.
+   예상 출력은 아래와 같음. 어느 정도 오차는 허용됨.
 
-   If your implementation fails this test but passes most other
-   tests, then consider whether you are doing too much work in
-   the timer interrupt.  If the timer interrupt handler takes too
-   long, then the test's main thread will not have enough time to
-   do its own work (printing a message) and go back to sleep
-   before the next tick arrives.  Then the main thread will be
-   ready, instead of sleeping, when the tick arrives,
-   artificially driving up the load average.
+   다른 테스트는 대부분 통과하는데 이 테스트만 실패한다면, 타이머
+   인터럽트에서 너무 많은 일을 하고 있지 않은지 살펴볼 것. 타이머
+   인터럽트 핸들러가 너무 오래 걸리면, 테스트의 main 스레드가 다음
+   tick이 오기 전에 자기 일(메시지 출력)을 마치고 다시 잠들 시간이
+   부족해짐. 그러면 tick이 왔을 때 main 스레드가 잠든 상태가 아니라
+   READY 상태가 되어, load average가 인위적으로 올라감.
 
    After 0 seconds, load average=0.00.
    After 2 seconds, load average=0.05.
@@ -106,7 +101,7 @@
    After 174 seconds, load average=9.61.
    After 176 seconds, load average=9.29.
    After 178 seconds, load average=8.98.
-*/
+   */
 
 #include <stdio.h>
 #include "tests/threads/tests.h"

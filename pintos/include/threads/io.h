@@ -44,114 +44,114 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/* Reads and returns a byte from PORT. */
+/* PORT에서 1바이트를 읽어 돌려줌. */
 static inline uint8_t
 inb (uint16_t port) {
-	/* See [IA32-v2a] "IN". */
+	/* [IA32-v2a] "IN" 참고. */
 	uint8_t data;
 	asm volatile ("inb %w1,%0" : "=a" (data) : "d" (port));
 	return data;
 }
 
-/* Reads CNT bytes from PORT, one after another, and stores them
-   into the buffer starting at ADDR. */
+/* PORT에서 CNT바이트를 하나씩 읽어 ADDR부터 시작하는
+   버퍼에 저장함. */
 static inline void
 insb (uint16_t port, void *addr, size_t cnt) {
-	/* See [IA32-v2a] "INS". */
+	/* [IA32-v2a] "INS" 참고. */
 	asm volatile ("cld; repne; insb"
 			: "=D" (addr), "=c" (cnt)
 			: "d" (port), "0" (addr), "1" (cnt)
 			: "memory", "cc");
 }
 
-/* Reads and returns 16 bits from PORT. */
+/* PORT에서 16비트를 읽어 돌려줌. */
 static inline uint16_t
 inw (uint16_t port) {
 	uint16_t data;
-	/* See [IA32-v2a] "IN". */
+	/* [IA32-v2a] "IN" 참고. */
 	asm volatile ("inw %w1,%0" : "=a" (data) : "d" (port));
 	return data;
 }
 
-/* Reads CNT 16-bit (halfword) units from PORT, one after
-   another, and stores them into the buffer starting at ADDR. */
+/* PORT에서 16비트(하프워드) 단위로 CNT개를 하나씩 읽어
+   ADDR부터 시작하는 버퍼에 저장함. */
 static inline void
 insw (uint16_t port, void *addr, size_t cnt) {
-	/* See [IA32-v2a] "INS". */
+	/* [IA32-v2a] "INS" 참고. */
 	asm volatile ("cld; repne; insw"
 			: "=D" (addr), "=c" (cnt)
 			: "d" (port), "0" (addr), "1" (cnt)
 			: "memory", "cc");
 }
 
-/* Reads and returns 32 bits from PORT. */
+/* PORT에서 32비트를 읽어 돌려줌. */
 static inline uint32_t
 inl (uint16_t port) {
-	/* See [IA32-v2a] "IN". */
+	/* [IA32-v2a] "IN" 참고. */
 	uint32_t data;
 	asm volatile ("inl %w1,%0" : "=a" (data) : "d" (port));
 	return data;
 }
 
-/* Reads CNT 32-bit (word) units from PORT, one after another,
-   and stores them into the buffer starting at ADDR. */
+/* PORT에서 32비트(워드) 단위로 CNT개를 하나씩 읽어
+   ADDR부터 시작하는 버퍼에 저장함. */
 static inline void
 insl (uint16_t port, void *addr, size_t cnt) {
-	/* See [IA32-v2a] "INS". */
+	/* [IA32-v2a] "INS" 참고. */
 	asm volatile ("cld; repne; insl"
 			: "=D" (addr), "=c" (cnt)
 			: "d" (port), "0" (addr), "1" (cnt)
 			: "memory", "cc");
 }
 
-/* Writes byte DATA to PORT. */
+/* 바이트 DATA를 PORT에 씀. */
 static inline void
 outb (uint16_t port, uint8_t data) {
-	/* See [IA32-v2b] "OUT". */
+	/* [IA32-v2b] "OUT" 참고. */
 	asm volatile ("outb %0,%w1" : : "a" (data), "d" (port));
 }
 
-/* Writes to PORT each byte of data in the CNT-byte buffer
-   starting at ADDR. */
+/* ADDR부터 시작하는 CNT바이트 버퍼의 데이터를 한 바이트씩
+   PORT에 씀. */
 static inline void
 outsb (uint16_t port, const void *addr, size_t cnt) {
-	/* See [IA32-v2b] "OUTS". */
+	/* [IA32-v2b] "OUTS" 참고. */
 	asm volatile ("cld; repne; outsb"
 			: "=S" (addr), "=c" (cnt)
 			: "d" (port), "0" (addr), "1" (cnt)
 			: "cc");
 }
 
-/* Writes the 16-bit DATA to PORT. */
+/* 16비트 DATA를 PORT에 씀. */
 static inline void
 outw (uint16_t port, uint16_t data) {
-	/* See [IA32-v2b] "OUT". */
+	/* [IA32-v2b] "OUT" 참고. */
 	asm volatile ("outw %0,%w1" : : "a" (data), "d" (port));
 }
 
-/* Writes to PORT each 16-bit unit (halfword) of data in the
-   CNT-halfword buffer starting at ADDR. */
+/* ADDR부터 시작하는 CNT개 하프워드 버퍼의 데이터를
+   16비트(하프워드) 단위로 PORT에 씀. */
 static inline void
 outsw (uint16_t port, const void *addr, size_t cnt) {
-	/* See [IA32-v2b] "OUTS". */
+	/* [IA32-v2b] "OUTS" 참고. */
 	asm volatile ("cld; repne; outsw"
 			: "=S" (addr), "=c" (cnt)
 			: "d" (port), "0" (addr), "1" (cnt)
 			: "cc");
 }
 
-/* Writes the 32-bit DATA to PORT. */
+/* 32비트 DATA를 PORT에 씀. */
 static inline void
 outl (uint16_t port, uint32_t data) {
-	/* See [IA32-v2b] "OUT". */
+	/* [IA32-v2b] "OUT" 참고. */
 	asm volatile ("outl %0,%w1" : : "a" (data), "d" (port));
 }
 
-/* Writes to PORT each 32-bit unit (word) of data in the CNT-word
-   buffer starting at ADDR. */
+/* ADDR부터 시작하는 CNT개 워드 버퍼의 데이터를 32비트(워드)
+   단위로 PORT에 씀. */
 static inline void
 outsl (uint16_t port, const void *addr, size_t cnt) {
-	/* See [IA32-v2b] "OUTS". */
+	/* [IA32-v2b] "OUTS" 참고. */
 	asm volatile ("cld; repne; outsl"
 			: "=S" (addr), "=c" (cnt)
 			: "d" (port), "0" (addr), "1" (cnt)

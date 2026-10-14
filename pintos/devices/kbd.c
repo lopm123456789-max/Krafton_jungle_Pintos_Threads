@@ -7,47 +7,46 @@
 #include "threads/interrupt.h"
 #include "threads/io.h"
 
-/* Keyboard data register port. */
+/* 키보드 데이터 레지스터 포트. */
 #define DATA_REG 0x60
 
-/* Current state of shift keys.
-   True if depressed, false otherwise. */
-static bool left_shift, right_shift;    /* Left and right Shift keys. */
-static bool left_alt, right_alt;        /* Left and right Alt keys. */
-static bool left_ctrl, right_ctrl;      /* Left and right Ctl keys. */
+/* 현재 Shift 계열 키 상태.
+   눌려 있으면 true, 아니면 false. */
+static bool left_shift, right_shift;    /* 왼쪽/오른쪽 Shift 키. */
+static bool left_alt, right_alt;        /* 왼쪽/오른쪽 Alt 키. */
+static bool left_ctrl, right_ctrl;      /* 왼쪽/오른쪽 Ctrl 키. */
 
-/* Status of Caps Lock.
-   True when on, false when off. */
+/* Caps Lock 상태.
+   켜져 있으면 true, 꺼져 있으면 false. */
 static bool caps_lock;
 
-/* Number of keys pressed. */
+/* 눌린 키 개수. */
 static int64_t key_cnt;
 
 static intr_handler_func keyboard_interrupt;
 
-/* Initializes the keyboard. */
+/* 키보드를 초기화함. */
 void
 kbd_init (void) {
 	intr_register_ext (0x21, keyboard_interrupt, "8042 Keyboard");
 }
 
-/* Prints keyboard statistics. */
+/* 키보드 통계를 출력함. */
 void
 kbd_print_stats (void) {
 	printf ("Keyboard: %lld keys pressed\n", key_cnt);
 }
 
-/* Maps a set of contiguous scancodes into characters. */
+/* 연속된 스캔코드 묶음을 문자로 바꾸는 표. */
 struct keymap {
-	uint8_t first_scancode;     /* First scancode. */
-	const char *chars;          /* chars[0] has scancode first_scancode,
-								   chars[1] has scancode first_scancode + 1,
-								   and so on to the end of the string. */
+	uint8_t first_scancode;     /* 첫 번째 스캔코드. */
+	const char *chars;          /* chars[0]은 first_scancode,
+								   chars[1]은 first_scancode + 1에 해당하고,
+								   문자열 끝까지 이런 식으로 이어짐. */
 };
 
-/* Keys that produce the same characters regardless of whether
-   the Shift keys are down.  Case of letters is an exception
-   that we handle elsewhere.  */
+/* Shift 키를 눌렀든 안 눌렀든 같은 문자가 나오는 키들.
+   알파벳 대소문자는 예외이며 다른 곳에서 처리함. */
 static const struct keymap invariant_keymap[] = {
 	{0x01, "\033"},
 	{0x0e, "\b"},
@@ -60,8 +59,8 @@ static const struct keymap invariant_keymap[] = {
 	{0, NULL},
 };
 
-/* Characters for keys pressed without Shift, for those keys
-   where it matters. */
+/* Shift 없이 눌렀을 때의 문자. Shift 여부에 따라
+   문자가 달라지는 키만 해당함. */
 static const struct keymap unshifted_keymap[] = {
 	{0x02, "1234567890-="},
 	{0x1a, "[]"},
@@ -71,8 +70,8 @@ static const struct keymap unshifted_keymap[] = {
 	{0, NULL},
 };
 
-/* Characters for keys pressed with Shift, for those keys where
-   it matters. */
+/* Shift와 함께 눌렀을 때의 문자. Shift 여부에 따라
+   문자가 달라지는 키만 해당함. */
 static const struct keymap shifted_keymap[] = {
 	{0x02, "!@#$%^&*()_+"},
 	{0x1a, "{}"},
@@ -86,31 +85,31 @@ static bool map_key (const struct keymap[], unsigned scancode, uint8_t *);
 
 static void
 keyboard_interrupt (struct intr_frame *args UNUSED) {
-	/* Status of shift keys. */
+	/* Shift 계열 키 상태. */
 	bool shift = left_shift || right_shift;
 	bool alt = left_alt || right_alt;
 	bool ctrl = left_ctrl || right_ctrl;
 
-	/* Keyboard scancode. */
+	/* 키보드 스캔코드. */
 	unsigned code;
 
-	/* False if key pressed, true if key released. */
+	/* 키를 눌렀으면 false, 뗐으면 true. */
 	bool release;
 
-	/* Character that corresponds to `code'. */
+	/* `code'에 해당하는 문자. */
 	uint8_t c;
 
-	/* Read scancode, including second byte if prefix code. */
+	/* 스캔코드를 읽음. 접두 코드면 두 번째 바이트까지 읽음. */
 	code = inb (DATA_REG);
 	if (code == 0xe0)
 		code = (code << 8) | inb (DATA_REG);
 
-	/* Bit 0x80 distinguishes key press from key release
-	   (even if there's a prefix). */
+	/* 0x80 비트로 키 누름과 키 뗌을 구분함
+	   (접두 코드가 있어도 마찬가지임). */
 	release = (code & 0x80) != 0;
 	code &= ~0x80u;
 
-	/* Interpret key. */
+	/* 키 해석. */
 	if (code == 0x3a) {
 		/* Caps Lock. */
 		if (!release)
@@ -118,36 +117,36 @@ keyboard_interrupt (struct intr_frame *args UNUSED) {
 	} else if (map_key (invariant_keymap, code, &c)
 			|| (!shift && map_key (unshifted_keymap, code, &c))
 			|| (shift && map_key (shifted_keymap, code, &c))) {
-		/* Ordinary character. */
+		/* 일반 문자. */
 		if (!release) {
-			/* Handle Ctrl, Shift.
-			   Note that Ctrl overrides Shift. */
+			/* Ctrl, Shift 처리.
+			   Ctrl이 Shift보다 우선함. */
 			if (ctrl && c >= 0x40 && c < 0x60) {
-				/* A is 0x41, Ctrl+A is 0x01, etc. */
+				/* A는 0x41, Ctrl+A는 0x01, 이런 식임. */
 				c -= 0x40;
 			} else if (shift == caps_lock)
 				c = tolower (c);
 
-			/* Handle Alt by setting the high bit.
-			   This 0x80 is unrelated to the one used to
-			   distinguish key press from key release. */
+			/* Alt는 최상위 비트를 켜서 처리함.
+			   여기의 0x80은 키 누름/뗌을 구분하는 0x80과는
+			   상관없음. */
 			if (alt)
 				c += 0x80;
 
-			/* Append to keyboard buffer. */
+			/* 키보드 버퍼에 추가함. */
 			if (!input_full ()) {
 				key_cnt++;
 				input_putc (c);
 			}
 		}
 	} else {
-		/* Maps a keycode into a shift state variable. */
+		/* 키 코드를 Shift 상태 변수에 대응시키는 표. */
 		struct shift_key {
 			unsigned scancode;
 			bool *state_var;
 		};
 
-		/* Table of shift keys. */
+		/* Shift 계열 키 표. */
 		static const struct shift_key shift_keys[] = {
 			{  0x2a, &left_shift},
 			{  0x36, &right_shift},
@@ -160,7 +159,7 @@ keyboard_interrupt (struct intr_frame *args UNUSED) {
 
 		const struct shift_key *key;
 
-		/* Scan the table. */
+		/* 표를 훑어봄. */
 		for (key = shift_keys; key->scancode != 0; key++)
 			if (key->scancode == code) {
 				*key->state_var = !release;
@@ -169,10 +168,9 @@ keyboard_interrupt (struct intr_frame *args UNUSED) {
 	}
 }
 
-/* Scans the array of keymaps K for SCANCODE.
-   If found, sets *C to the corresponding character and returns
-   true.
-   If not found, returns false and C is ignored. */
+/* 키맵 배열 K에서 SCANCODE를 찾음.
+   찾으면 *C에 해당 문자를 넣고 true를 돌려줌.
+   못 찾으면 false를 돌려주고 C는 건드리지 않음. */
 static bool
 map_key (const struct keymap k[], unsigned scancode, uint8_t *c) {
 	for (; k->first_scancode != 0; k++)

@@ -1,5 +1,5 @@
-/* This program attempts to read memory at an address that is not mapped.
-   This should terminate the process with a -1 exit code. */
+/* 매핑되지 않은 주소의 메모리를 읽으려 함.
+   프로세스가 종료 코드 -1로 끝나야 함. */
 
 #include "tests/lib.h"
 #include "tests/main.h"

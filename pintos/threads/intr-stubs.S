@@ -1,20 +1,19 @@
 #include "threads/loader.h"
 
-/* Main interrupt entry point.
+/* 인터럽트의 메인 진입점.
 
-   An internal or external interrupt starts in one of the
-   intrNN_stub routines, which push the `struct intr_frame'
-   frame_pointer, error_code, and vec_no members on the stack,
-   then jump here.
+   내부 인터럽트든 외부 인터럽트든 intrNN_stub 루틴 중 하나에서
+   시작함. 이 루틴은 `struct intr_frame'의 frame_pointer, error_code,
+   vec_no 멤버를 스택에 push 하고 여기로 점프함.
 
-   We save the rest of the `struct intr_frame' members to the
-   stack, set up some registers as needed by the kernel, and then
-   call intr_handler(), which actually handles the interrupt.
-*/
+   여기서는 `struct intr_frame'의 나머지 멤버를 스택에 저장하고,
+   커널에 필요한 레지스터 몇 개를 설정한 뒤, 실제로 인터럽트를
+   처리하는 intr_handler()를 부름.
+   */
 .section .text
 .func intr_entry
 intr_entry:
-	/* Save caller's registers. */
+	/* 호출한 쪽의 레지스터 저장. */
 	subq $16,%rsp
 	movw %ds,8(%rsp)
 	movw %es,0(%rsp)
@@ -34,7 +33,7 @@ intr_entry:
 	movq %r13,16(%rsp)
 	movq %r14,8(%rsp)
 	movq %r15,0(%rsp)
-	cld			/* String instructions go upward. */
+	cld			/* 문자열 명령이 위쪽(주소 증가 방향)으로 진행하게 함. */
 	movq $SEL_KDSEG, %rax
 	movw %ax, %ds
 	movw %ax, %es
@@ -65,47 +64,44 @@ intr_entry:
 	iretq
 .endfunc
 
-/* Interrupt stubs.
+/* 인터럽트 스텁.
 
-   This defines 256 fragments of code, named `intr00_stub'
-   through `intrff_stub', each of which is used as the entry
-   point for the corresponding interrupt vector.  It also puts
-   the address of each of these functions in the correct spot in
-   `intr_stubs', an array of function pointers.
+   `intr00_stub'부터 `intrff_stub'까지 256개의 코드 조각을 정의함.
+   각각은 해당 인터럽트 벡터의 진입점으로 쓰임. 또한 이 함수들의
+   주소를 함수 포인터 배열인 `intr_stubs'의 알맞은 자리에 넣음.
 
-   Most of the stubs do this:
+   대부분의 스텁은 이렇게 동작함:
 
-        1. Push %ebp on the stack (frame_pointer in `struct intr_frame').
+   1. %ebp를 스택에 push (`struct intr_frame'의 frame_pointer).
 
-        2. Push 0 on the stack (error_code).
+   2. 0을 스택에 push (error_code).
 
-        3. Push the interrupt number on the stack (vec_no).
+   3. 인터럽트 번호를 스택에 push (vec_no).
 
-   The CPU pushes an extra "error code" on the stack for a few
-   interrupts.  Because we want %ebp to be where the error code
-   is, we follow a different path:
+   몇몇 인터럽트에서는 CPU가 "에러 코드"를 스택에 하나 더 push 함.
+   에러 코드 자리에 %ebp가 있어야 하므로, 이때는 다른 순서를 따름:
 
-        1. Push a duplicate copy of the error code on the stack.
+   1. 에러 코드의 복사본을 스택에 push.
 
-        2. Replace the original copy of the error code by %ebp.
+   2. 원래 에러 코드 자리를 %ebp로 바꿈.
 
-        3. Push the interrupt number on the stack. */
+   3. 인터럽트 번호를 스택에 push. */
 
-/* This implements steps 1 and 2, described above, in the common
-   case where we just push a 0 error code. */
+/* 위에서 설명한 1, 2단계를 구현함. 에러 코드로 0을 push 하는
+   일반적인 경우용. */
 #define zero pushq $0;
 
-/* This implements steps 1 and 2, described above, in the case
-   where the CPU already pushed an error code. */
+/* 위에서 설명한 1, 2단계를 구현함. CPU가 이미 에러 코드를 push 한
+   경우용. */
 #define REAL
 
 .section .data
 .globl intr_stubs
 intr_stubs:
 
-/* Emits a stub for interrupt vector NUMBER.
-   TYPE is `zero', for the case where we push a 0 error code,
-   or `REAL', if the CPU pushes an error code for us. */
+/* 인터럽트 벡터 NUMBER용 스텁을 만듦.
+   TYPE은 에러 코드로 0을 push 하는 경우 `zero',
+   CPU가 에러 코드를 push 해주는 경우 `REAL'임. */
 #define STUB(NUMBER, TYPE)                      \
 .section .text;                                  \
 .globl intr##NUMBER##_stub;                     \
@@ -118,7 +114,7 @@ intr##NUMBER##_stub:                            \
 .section .data; \
 .quad intr##NUMBER##_stub;
 
-/* All the stubs. */
+/* 모든 스텁. */
 STUB(00, zero) STUB(01, zero) STUB(02, zero) STUB(03, zero)
 STUB(04, zero) STUB(05, zero) STUB(06, zero) STUB(07, zero)
 STUB(08, REAL) STUB(09, zero) STUB(0a, REAL) STUB(0b, REAL)

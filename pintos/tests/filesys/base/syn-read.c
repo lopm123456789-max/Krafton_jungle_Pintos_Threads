@@ -1,6 +1,5 @@
-/* Spawns 10 child processes, all of which read from the same
-   file and make sure that the contents are what they should
-   be. */
+/* 자식 프로세스 10개를 만들어서 모두 같은 파일을 읽고, 내용이
+   맞는지 확인함. */
 
 #include <random.h>
 #include <stdio.h>

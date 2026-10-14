@@ -1,4 +1,4 @@
-/* Tests timer_sleep(-100).  Only requirement is that it not crash. */
+/* timer_sleep(-100) 테스트. 죽지만 않으면 됨. */
 
 #include <stdio.h>
 #include "tests/threads/tests.h"

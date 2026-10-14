@@ -1,19 +1,17 @@
-/* Measures the correctness of the "nice" implementation.
+/* "nice" 구현이 정확한지 측정함.
 
-   The "fair" tests run either 2 or 20 threads all niced to 0.
-   The threads should all receive approximately the same number
-   of ticks.  Each test runs for 30 seconds, so the ticks should
-   also sum to approximately 30 * 100 == 3000 ticks.
+   "fair" 테스트는 nice가 모두 0인 스레드를 2개 또는 20개 실행함.
+   모든 스레드가 거의 같은 수의 tick을 받아야 함. 각 테스트는 30초
+   동안 돌기 때문에 tick 합계도 약 30 * 100 == 3000이 돼야 함.
 
-   The mlfqs-nice-2 test runs 2 threads, one with nice 0, the
-   other with nice 5, which should receive 1,904 and 1,096 ticks,
-   respectively, over 30 seconds.
+   mlfqs-nice-2 테스트는 nice 0인 스레드와 nice 5인 스레드 두 개를
+   실행함. 30초 동안 각각 1,904 tick과 1,096 tick을 받아야 함.
 
-   The mlfqs-nice-10 test runs 10 threads with nice 0 through 9.
-   They should receive 672, 588, 492, 408, 316, 232, 152, 92, 40,
-   and 8 ticks, respectively, over 30 seconds.
+   mlfqs-nice-10 테스트는 nice 0부터 9까지인 스레드 10개를 실행함.
+   30초 동안 각각 672, 588, 492, 408, 316, 232, 152, 92, 40, 8 tick을
+   받아야 함.
 
-   (The above are computed via simulation in mlfqs.pm.) */
+   (위 값들은 mlfqs.pm의 시뮬레이션으로 계산한 것임.) */
 
 #include <stdio.h>
 #include <inttypes.h>

@@ -1,5 +1,5 @@
-/* Tests that seeking past the end of a file and writing will
-   properly zero out the region in between. */
+/* 파일 끝을 넘어서 seek 한 뒤 쓰면, 그 사이 영역이 제대로
+   0으로 채워지는지 테스트함. */
 
 #include <syscall.h>
 #include "tests/lib.h"

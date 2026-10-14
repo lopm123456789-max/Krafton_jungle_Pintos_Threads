@@ -1,6 +1,5 @@
-/* Tries to remove the current directory, which may succeed or
-   fail.  The requirements in each case are different; refer to
-   the assignment for details. */
+/* 현재 디렉터리를 지워 봄. 성공할 수도 실패할 수도 있음.
+   경우마다 요구사항이 다르니 과제 설명 참고. */
 
 #include <syscall.h>
 #include "tests/lib.h"

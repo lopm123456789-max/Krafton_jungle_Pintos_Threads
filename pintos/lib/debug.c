@@ -5,10 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 
-/* Prints the call stack, that is, a list of addresses, one in
-   each of the functions we are nested within.  gdb or addr2line
-   may be applied to kernel.o to translate these into file names,
-   line numbers, and function names.  */
+/* 호출 스택, 즉 지금 들어와 있는 함수들 안의 주소 목록을
+   출력함. kernel.o에 gdb나 addr2line을 쓰면 이 주소를 파일 이름,
+   줄 번호, 함수 이름으로 바꿀 수 있음.  */
 void
 debug_backtrace (void) {
 	static bool explained;

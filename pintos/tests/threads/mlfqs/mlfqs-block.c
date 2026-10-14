@@ -1,13 +1,11 @@
-/* Checks that recent_cpu and priorities are updated for blocked
-   threads.
+/* BLOCKED 상태인 스레드도 recent_cpu와 우선순위가 갱신되는지
+   확인함.
 
-   The main thread sleeps for 25 seconds, spins for 5 seconds,
-   then releases a lock.  The "block" thread spins for 20 seconds
-   then attempts to acquire the lock, which will block for 10
-   seconds (until the main thread releases it).  If recent_cpu
-   decays properly while the "block" thread sleeps, then the
-   block thread should be immediately scheduled when the main
-   thread releases the lock. */
+   main 스레드는 25초 동안 잠들고, 5초 동안 바쁘게 돈 뒤 락을 풂.
+   "block" 스레드는 20초 동안 바쁘게 돈 뒤 락을 얻으려 하는데, main
+   스레드가 락을 풀 때까지 10초 동안 막힘. "block" 스레드가 잠든
+   동안 recent_cpu가 제대로 감소했다면, main 스레드가 락을 푸는
+   즉시 block 스레드가 스케줄돼야 함. */
 
 #include <stdio.h>
 #include "tests/threads/tests.h"

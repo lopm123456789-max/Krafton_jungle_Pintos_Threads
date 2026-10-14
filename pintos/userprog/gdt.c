@@ -6,20 +6,17 @@
 #include "threads/vaddr.h"
 #include "intrinsic.h"
 
-/* The Global Descriptor Table (GDT).
+/* 전역 디스크립터 테이블(GDT).
  *
- * The GDT, an x86-64 specific structure, defines segments that can
- * potentially be used by all processes in a system, subject to
- * their permissions.  There is also a per-process Local
- * Descriptor Table (LDT) but that is not used by modern
- * operating systems.
+ * GDT는 x86-64 전용 구조체로, 시스템의 모든 프로세스가 권한에
+ * 따라 쓸 수 있는 세그먼트를 정의함. 프로세스마다 있는 지역
+ * 디스크립터 테이블(LDT)도 있지만, 최신 운영체제에서는 쓰지 않음.
  *
- * Each entry in the GDT, which is known by its byte offset in
- * the table, identifies a segment.  For our purposes only three
- * types of segments are of interest: code, data, and TSS or
- * Task-State Segment descriptors.  The former two types are
- * exactly what they sound like.  The TSS is used primarily for
- * stack switching on interrupts. */
+ * GDT의 각 엔트리는 테이블 안의 바이트 오프셋으로 구분되며,
+ * 세그먼트 하나를 나타냄. 우리에게 필요한 세그먼트 종류는 세
+ * 가지뿐임: 코드, 데이터, TSS(태스크 상태 세그먼트) 디스크립터.
+ * 앞의 두 가지는 이름 그대로임. TSS는 주로 인터럽트 때 스택을
+ * 전환하는 데 씀. */
 
 struct segment_desc {
 	unsigned lim_15_0 : 16;
@@ -77,11 +74,11 @@ struct desc_ptr gdt_ds = {
 	.address = (uint64_t) gdt
 };
 
-/* Sets up a proper GDT.  The bootstrap loader's GDT didn't
-   include user-mode selectors or a TSS, but we need both now. */
+/* 제대로 된 GDT를 설정함. 부트스트랩 로더의 GDT에는 사용자 모드
+   셀렉터와 TSS가 없었는데, 이제 둘 다 필요함. */
 void
 gdt_init (void) {
-	/* Initialize GDT. */
+	/* GDT 초기화. */
 	struct segment_descriptor64 *tss_desc =
 		(struct segment_descriptor64 *) &gdt[SEL_TSS >> 3];
 	struct task_state *tss = tss_get ();
@@ -106,7 +103,7 @@ gdt_init (void) {
 	};
 
 	lgdt (&gdt_ds);
-	/* reload segment registers */
+	/* 세그먼트 레지스터 다시 불러오기 */
 	asm volatile("movw %%ax, %%gs" :: "a" (SEL_UDSEG));
 	asm volatile("movw %%ax, %%fs" :: "a" (0));
 	asm volatile("movw %%ax, %%es" :: "a" (SEL_KDSEG));
@@ -117,6 +114,6 @@ gdt_init (void) {
 			"pushq %%rax\n"
 			"lretq\n"
 			"1:\n" :: "b" (SEL_KCSEG):"cc","memory");
-	/* Kill the local descriptor table */
+	/* 지역 디스크립터 테이블(LDT) 끄기 */
 	lldt (0);
 }

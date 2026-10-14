@@ -1,4 +1,4 @@
-/* Opens a file and then closes it. */
+/* 파일을 열었다가 닫음. */
 
 #include <syscall.h>
 #include "tests/lib.h"

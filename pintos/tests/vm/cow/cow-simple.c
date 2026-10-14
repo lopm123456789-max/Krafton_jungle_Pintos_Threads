@@ -1,4 +1,4 @@
-/* Checks if fork is implemented properly with copy-on-write */
+/* fork가 copy-on-write로 제대로 구현됐는지 확인함 */
 
 #include <string.h>
 #include <syscall.h>

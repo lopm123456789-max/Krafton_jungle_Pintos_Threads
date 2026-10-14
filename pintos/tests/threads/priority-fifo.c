@@ -1,11 +1,10 @@
-/* Creates several threads all at the same priority and ensures
-   that they consistently run in the same round-robin order.
+/* 우선순위가 모두 같은 스레드 여러 개를 만들고, 항상 같은 라운드
+   로빈 순서로 실행되는지 확인함.
 
-   Based on a test originally submitted for Stanford's CS 140 in
-   winter 1999 by by Matt Franklin
+   원래 Stanford CS 140 1999년 겨울 학기에 Matt Franklin
    <startled@leland.stanford.edu>, Greg Hutchins
-   <gmh@leland.stanford.edu>, Yu Ping Hu <yph@cs.stanford.edu>.
-   Modified by arens. */
+   <gmh@leland.stanford.edu>, Yu Ping Hu <yph@cs.stanford.edu>가
+   제출한 테스트를 바탕으로 함. arens가 수정함. */
 
 #include <stdio.h>
 #include "tests/threads/tests.h"
@@ -17,10 +16,10 @@
 
 struct simple_thread_data 
   {
-    int id;                     /* Sleeper ID. */
-    int iterations;             /* Iterations so far. */
-    struct lock *lock;          /* Lock on output. */
-    int **op;                   /* Output buffer position. */
+    int id;                     /* 잠드는 스레드 ID. */
+    int iterations;             /* 지금까지의 반복 횟수. */
+    struct lock *lock;          /* 출력용 락. */
+    int **op;                   /* 출력 버퍼 위치. */
   };
 
 #define THREAD_CNT 16
@@ -36,10 +35,10 @@ test_priority_fifo (void)
   int *output, *op;
   int i, cnt;
 
-  /* This test does not work with the MLFQS. */
+  /* 이 테스트는 MLFQS에서는 동작하지 않음. */
   ASSERT (!thread_mlfqs);
 
-  /* Make sure our priority is the default. */
+  /* 우리 우선순위가 기본값인지 확인. */
   ASSERT (thread_get_priority () == PRI_DEFAULT);
 
   msg ("%d threads will iterate %d times in the same order each time.",
@@ -64,7 +63,7 @@ test_priority_fifo (void)
     }
 
   thread_set_priority (PRI_DEFAULT);
-  /* All the other threads now run to termination here. */
+  /* 나머지 스레드들은 모두 여기서 끝까지 실행됨. */
   ASSERT (lock.holder == NULL);
 
   cnt = 0;
