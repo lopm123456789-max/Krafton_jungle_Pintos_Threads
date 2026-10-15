@@ -147,6 +147,9 @@ timer_interrupt (struct intr_frame *args UNUSED) {
 			e = list_next(e);
 		}
 	}
+	if (!is_current_highest()){
+		intr_yield_on_return(); //양보 예약
+	}
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer

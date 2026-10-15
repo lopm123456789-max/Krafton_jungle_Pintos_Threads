@@ -62,8 +62,11 @@ static void init_thread (struct thread *, const char *name, int priority);
 static void do_schedule(int status);
 static void schedule (void);
 static tid_t allocate_tid (void);
-static bool cmp_priority (const struct list_elem *target, const struct list_elem *e, void *aux UNUSED);
-static void thread_yield_if_not_highest(void); 
+
+bool cmp_priority (const struct list_elem *target, const struct list_elem *e, void *aux UNUSED);
+bool is_current_highest(void);
+void thread_yield_if_not_highest(void); 
+
 
 /* Returns true if T appears to point to a valid thread. */
 #define is_thread(t) ((t) != NULL && (t)->magic == THREAD_MAGIC)
@@ -305,7 +308,7 @@ thread_yield (void) {
 
 	ASSERT (!intr_context ());
 
-	old_level = intr_disable ();
+	old_level = intr_disable (); 
 	if (curr != idle_thread)
 		//list_push_back (&ready_list, &curr->elem);
 		list_insert_ordered(&ready_list, &curr->elem, cmp_priority, NULL);
@@ -611,12 +614,17 @@ bool cmp_priority (const struct list_elem *target, const struct list_elem *e, vo
 	return false;
 }
 
-void thread_yield_if_not_highest(void){
-	if(list_empty(&ready_list)) return;
+bool is_current_highest(void){
+	if(list_empty(&ready_list)) return false;
 	
 	struct thread *current = thread_current();
 	struct thread *next = list_entry(list_begin(&ready_list), struct thread, elem);
-	if(current->priority < next->priority){
+	if(current->priority < next->priority) return false;
+	return true;
+}
+
+void thread_yield_if_not_highest(void){
+	if(!is_current_highest()){
 		thread_yield();
 	}
 }

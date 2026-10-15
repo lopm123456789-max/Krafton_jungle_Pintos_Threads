@@ -144,4 +144,7 @@ int thread_get_load_avg (void);
 
 void do_iret (struct intr_frame *tf);
 
+bool cmp_priority (const struct list_elem *target, const struct list_elem *e, void *aux UNUSED);
+bool is_current_highest(void);
+void thread_yield_if_not_highest(void); 
 #endif /* threads/thread.h */

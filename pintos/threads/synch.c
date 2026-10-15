@@ -66,7 +66,8 @@ sema_down (struct semaphore *sema) {
 
 	old_level = intr_disable ();
 	while (sema->value == 0) {
-		list_push_back (&sema->waiters, &thread_current ()->elem);
+		//list_push_back (&sema->waiters, &thread_current ()->elem);
+		list_insert_ordered(&sema->waiters, &thread_current ()->elem, cmp_priority, NULL);
 		thread_block ();
 	}
 	sema->value--;
@@ -108,11 +109,21 @@ sema_up (struct semaphore *sema) {
 
 	ASSERT (sema != NULL);
 
-	old_level = intr_disable ();
-	if (!list_empty (&sema->waiters))
-		thread_unblock (list_entry (list_pop_front (&sema->waiters),
-					struct thread, elem));
-	sema->value++;
+	old_level = intr_disable (); //인터럽트 플래그를 끄고, 끄기 전 상태를 돌려준다. 
+	if (!list_empty (&sema->waiters)){
+		struct thread *t = list_entry (list_pop_front (&sema->waiters),struct thread, elem);
+		thread_unblock (t);
+		sema->value++;
+
+		if(!intr_context()){ //sema_up이 외부 인터럽트에서 실행된게 아닌 경우 
+			thread_yield_if_not_highest(); //비교해보고 지금 즉시 양보
+		}else if(!is_current_highest()){ //외부 인터럽트에서 실행된 경우 + 양보해야하는 경우 
+			intr_yield_on_return(); //양보 예약
+		}
+
+	} else{ //waiters 비어있으면 기다리는 애들이 없다는 뜻, 그냥 value만 올리면 된다 
+		sema->value++;
+	}
 	intr_set_level (old_level);
 }
 
